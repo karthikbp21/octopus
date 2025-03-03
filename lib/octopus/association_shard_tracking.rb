@@ -36,12 +36,19 @@ module Octopus
     end
 
     def has_many(name, scope = nil, **options, &extension)
+      p "new banthu"
       if options == {} && scope.is_a?(Hash)
         default_octopus_opts(scope)
       else
         default_octopus_opts(options)
       end
-      super
+
+      # Ensure compatibility with Rails' expected argument count
+      if scope.nil?
+        super(name, **options, &extension)
+      else
+        super(name, scope, **options, &extension)
+      end
     end
 
     def has_and_belongs_to_many(association_id, scope = nil, options = {}, &extension)
