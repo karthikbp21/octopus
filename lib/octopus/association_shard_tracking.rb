@@ -35,13 +35,30 @@ module Octopus
       end
     end
 
-    def has_many(name, scope = nil, **options, &extension)
-      if options == {} && scope.is_a?(Hash)
-        default_octopus_opts(scope)
+    # def has_many(name, scope = nil, **options, &extension)
+    #   if options == {} && scope.is_a?(Hash)
+    #     default_octopus_opts(scope)
+    #   else
+    #     default_octopus_opts(options)
+    #   end
+    #   super
+    # end
+
+    def has_many(name, *args, **options, &extension)
+      scope = args[0] if args.any? && !args[0].is_a?(Hash)
+
+      if options.empty? && args[0].is_a?(Hash)
+        default_octopus_opts(args[0])
       else
         default_octopus_opts(options)
       end
-      super
+
+      # Call the original `has_many` method
+      if scope
+        super(name, scope, **options, &extension)
+      else
+        super(name, **options, &extension)
+      end
     end
 
     def has_and_belongs_to_many(association_id, scope = nil, options = {}, &extension)
