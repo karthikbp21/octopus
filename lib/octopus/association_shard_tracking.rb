@@ -35,19 +35,47 @@ module Octopus
       end
     end
 
-    def has_many(name, scope = nil, **options, &extension)
-      p "new banthu"
-      if options == {} && scope.is_a?(Hash)
-        default_octopus_opts(scope)
-      else
-        default_octopus_opts(options)
-      end
 
-      # Ensure compatibility with Rails' expected argument count
-      if scope.nil?
-        super(name, **options, &extension)
-      else
+    # def has_many(name, scope = nil, **options, &extension)
+    #   puts "has_many called with: name=#{name.inspect}, scope=#{scope.inspect}, options=#{options.inspect}"
+    #   if options == {} && scope.is_a?(Hash)
+    #     default_octopus_opts(scope)
+    #   else
+    #     default_octopus_opts(options)
+    #   end
+    #   # Ensure compatibility with Rails' expected argument count
+    #   if scope.nil? || scope.is_a?(Hash)
+    #     super(name, **options, &extension)
+    #   elsif scope.is_a?(Proc)
+    #     if extension
+    #       super(name, scope, **options, &extension)
+    #     else
+    #       p "bpk2"
+    #       # super(name, **options, &scope)
+    #       super(name, scope, **options, &extension)
+    #       # super(name, scope, **options, &extension)
+    #       # super(name, **options, &scope.to_proc)
+    #       # super(name, **options) { scope.call }
+    #       # super(name, scope, **options)
+    #     end
+    #   else
+    #     super(name, scope, **options, &extension)
+    #   end
+    # end
+
+
+    def has_many(name, *args, &extension)
+      # Extract scope and options carefully
+      scope = args[0].is_a?(Proc) ? args.shift : nil
+      options = args.last.is_a?(Hash) ? args.pop : {}
+
+      # puts "has_many called with: name=#{name.inspect}, scope=#{scope.inspect}, options=#{options.inspect}"
+
+      # Pass correct arguments to ActiveRecord's has_many
+      if scope
         super(name, scope, **options, &extension)
+      else
+        super(name, **options, &extension)
       end
     end
 
